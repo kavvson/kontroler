@@ -477,6 +477,7 @@ class Place extends MY_Controller
             $row["fk_pracownik"] = $customers->imie . " " . $customers->nazwisko;
             $row["data_zakonczenia"] = $customers->data_zakonczenia;
             $row["data_rozpoczecia"] = $customers->data_rozpoczecia;
+            $row["data_rachunku"] = $customers->data_rachunku;
             $row["zus_pracownik"] = $customers->zus_pracownik;
             $row["zus_pracodawca"] = $customers->zus_pracodawca;
             $row["do_wyplaty"] = $customers->do_wyplaty;
@@ -500,6 +501,7 @@ class Place extends MY_Controller
         echo json_encode($output);
     }
 
+    /* place */
     public function ajax_list()
     {
         if (!$this->input->is_ajax_request()) {

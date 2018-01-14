@@ -23,6 +23,35 @@ class Przychody extends MY_Controller
         }
     }
 
+    public function UsunFakture($id)
+    {
+        if (!$this->is_admin) {
+            show_error("Niewystarczające uprawnienia do przeglądania przychodów", 404, 'Brak uprawnień');
+        }
+        if (!isset($id) || !is_numeric($id)) {
+            show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
+        }
+        $this->load->model("Przychody_model", "p");
+        $this->p->UsunFakture($id);
+
+    }
+
+    public function ZmienNrFaktury($id)
+    {
+        if (!isset($id) || !is_numeric($id)) {
+            show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
+        }
+
+        $this->load->model("Przychody_model", "p");
+        $this->p->zmianaNrFaktury($id);
+    }
+
+    public function karta_rozlicz()
+    {
+        $this->load->model("Wydatki_model", "wy");
+        $this->wy->rozlicz_wydatki("Przychod");
+    }
+
     public function Oplac()
     {
         $dp = $this->input->post("dot_platnosci__");
@@ -54,9 +83,14 @@ class Przychody extends MY_Controller
         $pobierz_korekty = $this->p->pobierz_korekty($id);
 
 
-        //if (!isset($id) || !is_numeric($id) || empty($wydatek)) {
-        //   show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
-        // }
+        if (!isset($id) || !is_numeric($id) || empty($wydatek)) {
+            show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
+        }
+
+        if (empty($wydatek)) {
+            show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
+        }
+
 
         $data = array(
             'title' => 'Faktury',
@@ -86,8 +120,7 @@ class Przychody extends MY_Controller
             redirect('auth/login', 'refresh');
         }
 
-        if(empty($id))
-        {
+        if (empty($id)) {
             die();
         }
         $this->load->model("Przychody_model", "p");
@@ -101,14 +134,14 @@ class Przychody extends MY_Controller
             'pageName' => 'Wyceny',
             'navMaster' => 'Zgłoszenia',
             'navSecond' => '',
-           // 'w' => $wydatek,
-            'id'=>$id,
-            'nabywca' =>$dane
+            // 'w' => $wydatek,
+            'id' => $id,
+            'nabywca' => $dane
         );
 
-        $html =  $this->load->view('pdfy/monit', $data, true);
+        $html = $this->load->view('pdfy/monit', $data, true);
 
-        $pdfFilePath = "Monit-".$dane->nazwa."-".date("Y-m-d").".pdf";
+        $pdfFilePath = "Monit-" . $dane->nazwa . "-" . date("Y-m-d") . ".pdf";
 
         $this->load->library('M_pdf');
 
@@ -116,7 +149,6 @@ class Przychody extends MY_Controller
 
         //download it.
         $this->m_pdf->pdf->Output($pdfFilePath, "I");
-
 
 
     }
@@ -238,7 +270,7 @@ class Przychody extends MY_Controller
 
     function edit($id_przychodu)
     {
-        die("Do zrobienia");
+        //die("Do zrobienia");
         $this->load->model('Przychody_model');
 
         $data = array(
@@ -258,7 +290,7 @@ class Przychody extends MY_Controller
             show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
         }
         $this->load->view('partial/header', $data);
-        $this->load->view('przychody/edit', $data);
+        $this->load->view('przychody/edit_old', $data);
         $this->load->view('partial/footer');
     }
 

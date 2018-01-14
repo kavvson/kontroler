@@ -36,9 +36,11 @@ class Wydatki_kategorie extends MY_Controller {
         $data = array(
             'title' => 'Dodawanie kategorii wydatku',
         );
+
         if ($this->form_validation->run()) {
             $params = array(
                 'nazwa' => $this->input->post('nazwa'),
+                'do_pojazdu' => ($this->input->post('pojazd'))? 1 : 0,
             );
 
             $wydatki_kategorie_id = $this->Wydatki_kategorie_model->add_wydatki_kategorie($params);
@@ -69,6 +71,7 @@ class Wydatki_kategorie extends MY_Controller {
             if ($this->form_validation->run()) {
                 $params = array(
                     'nazwa' => $this->input->post('nazwa'),
+                    'do_pojazdu' => ($this->input->post('pojazd'))? 1 : 0,
                 );
 
                 $this->Wydatki_kategorie_model->update_wydatki_kategorie($id_kat, $params);

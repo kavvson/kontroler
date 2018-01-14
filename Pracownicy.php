@@ -58,11 +58,24 @@ class Pracownicy extends MY_Controller
         if (!isset($id) || !is_numeric($id)) {
             show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
         }
-       if (!$this->is_admin) {
+        if (!$this->is_admin) {
             show_error("Niewystarczające uprawnienia do podglądu", 404, 'Brak uprawnień');
         }
         $this->load->model("Karty_model");
         $this->Karty_model->pobierz_pozostale($id);
+    }
+
+    public function Aktywacja()
+    {
+        if (!$this->input->is_ajax_request()) {
+            exit('No direct script access allowed');
+        }
+
+        if (!$this->is_admin) {
+            show_error("Niewystarczające uprawnienia do tej czynności", 404, 'Brak uprawnień');
+        }
+        $this->load->model("Pracownicy_model");
+        $this->Pracownicy_model->aktywacja_pracownika();
     }
 
     public function Karty($id)
@@ -261,8 +274,14 @@ class Pracownicy extends MY_Controller
         $this->load->view('pracownicy/partial/place', $data);
     }
 
+    public function Podsumowaniejson()
+    {
+        $this->load->model("Pracownicy_model", "pracownicy");
+        $this->pracownicy->raport_plac();
+    }
     public function Podsumowanie()
     {
+        die("Funkcjonalność przeniesiona do analityki");
         $data = array(
             'title' => 'Lista pracowników',
             'pages_now' => 'lista_pracownikow',
@@ -306,8 +325,6 @@ class Pracownicy extends MY_Controller
             show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
         }
 
-        $this->load->model("Statistic_model");
-        $this->load->model("Pracownicy_model", "pracownicy");
 
         $data = array(
             'title' => 'Lista pracowników',
@@ -366,23 +383,6 @@ class Pracownicy extends MY_Controller
 
     }
 
-    public function RozliczGotowke($id)
-    {
-        if (!isset($id) || !is_numeric($id)) {
-            show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
-        }
-        $this->load->model("Pracownicy_model", "d");
-        $this->d->RozliczGotowke($id, 1);
-    }
-
-    public function RozliczPrzelew($id)
-    {
-        if (!isset($id) || !is_numeric($id)) {
-            show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
-        }
-        $this->load->model("Pracownicy_model", "d");
-        $this->d->RozliczGotowke($id, 2);
-    }
 
     public function Dodaj()
     {
@@ -392,6 +392,19 @@ class Pracownicy extends MY_Controller
         $this->load->model("Pracownicy_model", "pracownicy");
         $this->pracownicy->dodaj_pracownika();
         //echo json_encode($_POST);
+    }
+
+    public function Edytuj($id,$adres)
+    {
+        if (!$this->is_admin) {
+            show_error("Niewystarczające uprawnienia do dodawania", 404, 'Brak uprawnień');
+        }
+        if (!isset($id) || !is_numeric($id)) {
+            show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
+        }
+        $this->load->model("Pracownicy_model", "pracownicy");
+        $this->pracownicy->dodaj_pracownika("edycja",$id,$adres);
+
     }
 
     /*

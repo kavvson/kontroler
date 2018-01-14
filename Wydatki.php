@@ -19,6 +19,12 @@ class Wydatki extends MY_Controller
         parent::__construct();
     }
 
+    public function karta_rozlicz()
+    {
+        $this->load->model("Wydatki_model", "wy");
+        $this->wy->rozlicz_wydatki("Wydatek");
+    }
+
     public function Edycja($id)
     {
 
@@ -77,6 +83,8 @@ class Wydatki extends MY_Controller
         $this->load->model("Adresy_model");
         $wydatek = $this->wy->podglad_wydatku($id);
         $pobierz_historie = $this->wy->pobierz_historie($id);
+
+        $proforma = $this->wy->pobierz_org_proforme($id);
         if (!isset($id) || !is_numeric($id) || empty($wydatek)) {
             show_error("Nie odnaleziono", 404, 'Wystąpił błąd');
         }
@@ -90,7 +98,8 @@ class Wydatki extends MY_Controller
             'navMaster' => 'Zgłoszenia',
             'navSecond' => '',
             'w' => $wydatek,
-            'h' => $pobierz_historie
+            'h' => $pobierz_historie,
+            'proforma' =>$proforma
         );
         $rozbicie = array();
 
@@ -133,7 +142,7 @@ class Wydatki extends MY_Controller
     public function index()
     {
         $this->load->model('customers_model', 'customers');
-       // $this->output->enable_profiler(true);
+        // $this->output->enable_profiler(true);
         $this->load->helper('url');
         $this->load->helper('form');
 
@@ -155,9 +164,25 @@ class Wydatki extends MY_Controller
         $this->load->view('partial/footer');
     }
 
+
     public function wydatek_modal()
     {
         $this->load->view('wydatki/dodaj_wydatek');
+    }
+
+    public function zalacz_fv_modal($wy_id)
+    {
+        if (empty($wy_id)) {
+            show_404("Nie przekazano id wydatku");
+        }
+        $data['id'] = $wy_id;
+        $this->load->view('wydatki/dodaj_pro_fv', $data);
+    }
+
+    public function zalacz_fv()
+    {
+        $this->load->model("Wydatki_model");
+        $this->Wydatki_model->zalacz_pro_fv();
     }
 
     public function ajax_list()
@@ -192,11 +217,12 @@ class Wydatki extends MY_Controller
             $row["priorytet"] = $customers->priorytet;
             $row["skan"] = $customers->skan_id;
             $row["prac"] = $customers->id_pracownika;
+            $row["pro_forma"] = $customers->pro_forma;
             $data[] = $row;
         }
         $call = $this->customers->count_filtered();
 
-
+        //var_dump($data);
         $output = array(
             "draw" => $this->input->post('draw'),
             "recordsTotal" => $this->customers->count_all(),
